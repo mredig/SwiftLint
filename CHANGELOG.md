@@ -18,7 +18,7 @@
 
 * Add rule `indentation_style`. Warns when tabs and spaces are mixed within the
   same file and allows for setting your entire project to either tabs OR 
-  spaces. Also allows for spaces to finese placement at the end of a tabbed 
+  spaces. Also allows for spaces to finesse placement at the end of a tabbed 
   indentation.  
   [Michael Redig](https://github.com/mredig)
   [PR 5137](https://github.com/realm/SwiftLint/pull/5137)
