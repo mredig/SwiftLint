@@ -21,7 +21,7 @@
   spaces. Also allows for spaces to finesse placement at the end of a tabbed 
   indentation.  
   [Michael Redig](https://github.com/mredig)
-  [PR 5137](https://github.com/realm/SwiftLint/pull/5137)
+  [PR 5138](https://github.com/realm/SwiftLint/pull/5138)
 
 #### Bug Fixes
 
