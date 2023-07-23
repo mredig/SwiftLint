@@ -49,36 +49,29 @@ extension IdentifierNameRule {
             }
 
         override func visitPost(_ node: EnumCaseElementSyntax) {
-            let identifier = node.identifier
-            let name = identifier.text
-
-            validateIdentifierNode(identifier, withName: name, andIdentifierType: .enumElement)
+            validateIdentifierNode(node.identifier, ofType: .enumElement)
         }
 
         override func visitPost(_ node: FunctionDeclSyntax) {
             let identifier = node.identifier
-            let name = identifier.text
 
-            switch node.identifier.tokenKind {
+            switch identifier.tokenKind {
             case .binaryOperator, .prefixOperator, .postfixOperator:
                 return
             default: break
             }
 
-            validateIdentifierNode(identifier, withName: name, andIdentifierType: .function)
+            validateIdentifierNode(identifier, ofType: .function)
         }
 
         override func visitPost(_ node: IdentifierPatternSyntax) {
-            let identifier = node.identifier
-            let name = identifier.text
-
-            validateIdentifierNode(identifier, withName: name, andIdentifierType: .variable)
+            validateIdentifierNode(node.identifier, ofType: .variable)
         }
 
         private func validateIdentifierNode(
             _ identifier: TokenSyntax,
-            withName name: String,
-            andIdentifierType identifierType: IdentifierType) {
+            ofType identifierType: IdentifierType) {
+                let name = cleanupName(identifier.text)
                 // confirm this node isn't in the exclusion list
                 // and that it has at least one character
                 guard
@@ -228,6 +221,17 @@ extension IdentifierNameRule {
 		private func validate(name: String, isValidWithin characterSet: CharacterSet) -> Bool {
 			characterSet.isSuperset(of: CharacterSet(charactersIn: name))
 		}
+
+        private func cleanupName(_ name: String) -> String {
+            guard
+                name.first == "`",
+                name.last == "`",
+                name.count >= 3
+            else { return name }
+            let oneInFront = name.index(after: name.startIndex)
+            let oneInBack = name.index(before: name.endIndex)
+            return String(name[oneInFront..<oneInBack])
+        }
 	}
 }
 
@@ -236,32 +240,5 @@ extension IdentifierNameRule {
         case variable
         case function
         case enumElement = "enum element"
-    }
-}
-
-private extension String {
-    var isViolatingCase: Bool {
-        let firstCharacter = String(self[startIndex])
-        guard firstCharacter.isUppercase() else {
-            return false
-        }
-        guard count > 1 else {
-            return true
-        }
-        let secondCharacter = String(self[index(after: startIndex)])
-        return secondCharacter.isLowercase()
-    }
-
-    var isOperator: Bool {
-        let operators = ["/", "=", "-", "+", "!", "*", "|", "^", "~", "?", ".", "%", "<", ">", "&"]
-        return operators.contains(where: hasPrefix)
-    }
-
-    func nameStrippingLeadingUnderscoreIfPrivate(_ dict: SourceKittenDictionary) -> String {
-        if let acl = dict.accessibility,
-            acl.isPrivate && first == "_" {
-            return String(self[index(after: startIndex)...])
-        }
-        return self
     }
 }
